@@ -47,12 +47,18 @@ public class Benchmark {
     private static long benchmarkSignWithDefaultPAndQ() {
         val data = RandomStringUtils.randomAscii(SIZE).getBytes();
 
+        // warmup
+        for (int i = 0; i < 10; i++) {
+            val rsa = new RSA();
+            val openKey = rsa.generatePublicKey();
+            System.out.println(Signature.sign(data, openKey));
+        }
+
         byte[] res = null;
         var begin = Instant.now();
         for (int i = 0; i < ITERATIONS; i++) {
-            val rsa = new RSA().init();
-            val signature = new Signature(rsa);
-            val openKey = signature.generatePublicKey();
+            val rsa = new RSA();
+            val openKey = rsa.generatePublicKey();
             res = Signature.sign(data, openKey);
         }
         val duration = Duration.between(begin, Instant.now()).abs().toMillis() / ITERATIONS;
@@ -64,15 +70,24 @@ public class Benchmark {
     private static long benchmarkSignWithCustomPAndQAndE() {
         val data = RandomStringUtils.randomAscii(SIZE).getBytes();
 
+        // warmup
+        for (int i = 0; i < 10; i++) {
+            val p = new BigInteger("5700734181645378434561188374130529072194886062117");
+            val q = new BigInteger("35894562752016259689151502540913447503526083241413");
+            val e = new BigInteger("33445843524692047286771520482406772494816708076993");
+            val rsa = new RSA(p, q, e);
+            val openKey = rsa.generatePublicKey();
+            System.out.println(Signature.sign(data, openKey));
+        }
+
         byte[] res = null;
         var begin = Instant.now();
         for (int i = 0; i < ITERATIONS; i++) {
             val p = new BigInteger("5700734181645378434561188374130529072194886062117");
             val q = new BigInteger("35894562752016259689151502540913447503526083241413");
             val e = new BigInteger("33445843524692047286771520482406772494816708076993");
-            val rsa = new RSA().init(p, q, e);
-            val signature = new Signature(rsa);
-            val openKey = signature.generatePublicKey();
+            val rsa = new RSA(p, q, e);
+            val openKey = rsa.generatePublicKey();
             res = Signature.sign(data, openKey);
         }
         val duration = Duration.between(begin, Instant.now()).abs().toMillis() / ITERATIONS;
@@ -84,10 +99,15 @@ public class Benchmark {
     private static long benchmarkVerify() {
         val data = RandomStringUtils.randomAscii(SIZE).getBytes();
 
+        //warmup
+        for (int i = 0; i < 10; i++) {
+            System.out.println(Signature.verify(data, new byte[] {1, 2, 3}, new ImmutablePair<>(BigInteger.ONE, BigInteger.ONE)));
+        }
+
         boolean res = false;
         val signed = IntStream.range(0, ITERATIONS)
-                .mapToObj(i -> new Signature(new RSA().init()))
-                .map(sig -> new ImmutablePair<>(Signature.sign(data, sig.generatePublicKey()), sig.generatePrivateKey()))
+                .mapToObj(i -> new RSA())
+                .map(rsa -> new ImmutablePair<>(Signature.sign(data, rsa.generatePublicKey()), rsa.generatePrivateKey()))
                 .collect(Collectors.toList());
 
         var begin = Instant.now();

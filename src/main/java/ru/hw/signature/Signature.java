@@ -1,5 +1,7 @@
 package ru.hw.signature;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.val;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
@@ -8,12 +10,8 @@ import java.util.Arrays;
 
 import static ru.hw.signature.Utils.*;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Signature {
-    private final RSA rsa;
-
-    public Signature(RSA rsa) {
-        this.rsa = rsa;
-    }
 
     public static boolean verify(byte[] data, byte[] sign, ImmutablePair<BigInteger, BigInteger> privateKey) {
         val hash = BigInteger.valueOf(unsignedInt(Arrays.hashCode(data))).toByteArray();
@@ -26,13 +24,5 @@ public class Signature {
         val hash = BigInteger.valueOf(unsignedInt(Arrays.hashCode(data))).toByteArray();
 
         return RSA.encipher(hash, openKey.left, openKey.right);
-    }
-
-    public ImmutablePair<BigInteger, BigInteger> generatePublicKey() {
-        return rsa.generatePublicKey();
-    }
-
-    public ImmutablePair<BigInteger, BigInteger> generatePrivateKey() {
-        return rsa.generatePrivateKey();
     }
 }

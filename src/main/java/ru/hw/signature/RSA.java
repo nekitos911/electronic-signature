@@ -17,21 +17,27 @@ public class RSA {
     private BigInteger d;
     private BigInteger e;
 
-    public RSA init(BigInteger p, BigInteger q, BigInteger e) {
+    public RSA() {
+        init();
+    }
+
+    public RSA (BigInteger p, BigInteger q, BigInteger e) {
+        init(p, q, e);
+    }
+
+    private void init(BigInteger p, BigInteger q, BigInteger e) {
         val fi = (p.subtract(ONE).multiply(q.subtract(ONE)));
 
         this.e = e == null ? BigInteger.probablePrime(fi.bitLength() - 1, rnd) : e;
         this.n = p.multiply(q);
         this.d = this.e.modInverse(fi); // d = e^-1 mod fi
-
-        return this;
     }
 
-    public RSA init() {
+    private void init() {
         val p = BigInteger.probablePrime(bitsLength, rnd);
         val q = BigInteger.probablePrime(bitsLength, rnd);
 
-        return init(p, q, null);
+        init(p, q, null);
     }
 
     public ImmutablePair<BigInteger, BigInteger> generatePublicKey() {
@@ -40,7 +46,7 @@ public class RSA {
     }
 
     public ImmutablePair<BigInteger, BigInteger> generatePrivateKey() {
-        if (e == null || n == null) init();
+        if (d == null || n == null) init();
         return new ImmutablePair<>(d, n);
     }
 
