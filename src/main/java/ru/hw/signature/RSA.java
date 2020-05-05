@@ -28,7 +28,7 @@ public class RSA {
     private void init(BigInteger p, BigInteger q, BigInteger e) {
         val fi = (p.subtract(ONE).multiply(q.subtract(ONE)));
 
-        this.e = e == null ? BigInteger.probablePrime(fi.bitLength() - 1, rnd) : e;
+        this.e = primeNumbers(e == null ? BigInteger.probablePrime(fi.bitLength() - 1, rnd) : e, fi);
         this.n = p.multiply(q);
         this.d = this.e.modInverse(fi); // d = e^-1 mod fi
     }
@@ -56,5 +56,12 @@ public class RSA {
 
     public  static byte[] decipher(byte[] data, BigInteger d, BigInteger n) {
         return new BigInteger(data).modPow(d, n).toByteArray();
+    }
+
+    private BigInteger primeNumbers(BigInteger first, BigInteger second) {
+        while (!first.gcd(second).equals(ONE)) {
+            first = first.nextProbablePrime();
+        }
+        return first;
     }
 }
