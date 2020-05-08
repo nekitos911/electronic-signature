@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.val;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import ru.hw.md5.MD5;
 
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -29,6 +30,6 @@ public class Signature {
     private static byte[] hash(byte[] data) {
         return useStandardHashCode ?
                 BigInteger.valueOf(unsignedInt(Arrays.hashCode(data))).toByteArray() :
-                new BigInteger(data).toByteArray();
+                MD5.getHash(data).getBytes();
     }
 }
